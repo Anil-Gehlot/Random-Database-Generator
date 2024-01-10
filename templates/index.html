@@ -3,24 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Database Tables</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='index_style.css') }}">
-
+    <title>Document</title>
 </head>
 <body>
-    <div class="container">
+    
+    <form action="{{url_for('db_choice')}}" method="post">
 
-        <h1>Create Database Tables</h1>
-
-        <form action="/create_tables/" method="post">
-            <label for="dbName">Database Name:</label>
-            <input type="text" id="dbName" name="dbName" placeholder="Enter Database Name" required>
-
-            <label for="numTables">Number of Tables:</label>
-            <input type="number" id="numTables" name="numTables" placeholder="Enter Number of Tables" required>
-
-            <button type="submit">Create Tables</button>
-        </form>
-    </div>
+        <label for="DBchoice">Choose DB</label>
+        <select name="DBchoice" id="db" required>
+            <option value="mongodb">MongoDB</option>
+            <option value="mysql">Mysql</option>
+            <option value="postgresql">Postgresql</option>
+        </select>
+        <button type="submit">Submit</button>
+    </form>
+    
 </body>
 </html>
