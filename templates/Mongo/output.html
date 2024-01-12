@@ -29,22 +29,41 @@
     <hr>
 
 
-    {% for message in message %}
+    {% for message in messages %}
+        
+        
         <div class="success">
             {{ message }}
         </div>
 
-            
+
     {% endfor %}
+
+
+    {% for err in errors_list %}
+        
+        
+        <div class="error">
+            {{ err }}
+            <a onclick="goBack()"> Go Back to fix Error </a>
+
+        </div>
+
+    {% endfor %}
+
+
+
     {% if error %}
     <div class="error">
         {{ error }}
+        <a onclick="goBack()"> Go Back to fix Error </a>
      </div>
     {% endif %} 
+
     <br><br><br><br>
 
-    {% if total==num_tables %}
-        <form action="/download_schema/{{ db_name }}" method="post">
+    {% if db %}
+        <form action="/download_schema/{{db}}/" method="post">
             <button type="submit">click here to download schema </button>
         </form>
     {% endif %} 
