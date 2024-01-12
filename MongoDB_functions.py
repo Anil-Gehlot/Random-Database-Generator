@@ -1,8 +1,8 @@
 from decimal import Decimal                     # class for decimal conversion 
 from faker import Faker                         # class for fake data 
-from config import client                   # instance of MongoClient class to use mongodb
+from config import client                       # instance of MongoClient class to use mongodb
 import random                                   # to genrate random number 
-
+import json
 # making Faker class instance 
 fake = Faker()
 
@@ -167,52 +167,53 @@ def null_fake_data(key,json_data) :
 
 
 # Function to generate fake data based on data type
-def generate_fake_data(key, data_type,json_data):
+def generate_fake_data(key, data_type,json_data , error):
     data_type = data_type.strip().lower()
     
 
-    if 'string' in data_type:
+    if 'string' == data_type:
         string_json_data = string_fake_data(key, json_data)
         
-        return string_json_data
+        # return string_json_data
     
-    if 'bool' in data_type or 'boolean' in data_type:
+    if 'bool' == data_type or 'boolean' == data_type:
         
         json_data[key] = fake.random_element(elements=(True, False))
-        return  json_data
+        # return  json_data
     
-    if 'long' in data_type:
+    if 'long' == data_type:
         
         long_json_data  =  long_fake_data(key,json_data)
-        return long_json_data
+        # return long_json_data
     
-    if 'int' in data_type or 'numeric' in data_type or 'Int32' in data_type:
+    if 'int' == data_type or 'numeric' == data_type or 'Int32' == data_type:
         int_json_data = int_fake_data(key,json_data)
-        return int_json_data
+        # return int_json_data
     
-    if 'date' in data_type :
+    if 'date' == data_type :
         
         json_data[key] =  f"{str(random.randint(1900, 2023)).zfill(4)}-{str(random.randint(1, 12)).zfill(2)}-{str(random.randint(1, 28)).zfill(2)}"  
-        return json_data
+        # return json_data
        
         # zfill() ensure leading zero for months, year , day
-    if 'array' in data_type :
+    if 'array' == data_type :
         array_data = array_fake_data(key, json_data) 
-        return array_data
+        # return array_data
     
-    if 'object' in data_type :
+    if 'object' == data_type :
         object_data = object_fake_data(key, json_data)
-        return object_data
+        # return object_data
 
-    if 'decimal' in data_type or 'decimal128' in data_type: 
+    if 'decimal' == data_type or 'decimal128' == data_type: 
         decimal_data = decimal_fake_data(key, json_data)
-        return decimal_data
+        # return decimal_data
     
-    if 'Null' in data_type or 'None' in data_type :
+    if 'Null' == data_type or 'None' == data_type :
         null_data = null_fake_data(key,json_data)
-        return null_data
-
-
+        # return null_data
+    else :
+        error = f"Not a valid data type for {key}"
+        return error
 # function which split the key and data type and send it to genrate_fake_data function  
 
 def data_split(key_details_list , json_data):
@@ -242,8 +243,29 @@ def data_split(key_details_list , json_data):
             key = key_and_data_type[i][j][0]
             data_type = key_and_data_type[i][j][1]
             
-            generate_fake_data(key.lower().strip(),data_type.lower(),json_data)
-           
-        
+            response =  generate_fake_data(key.lower().strip(),data_type.lower().strip(),json_data ,error = None)
+            if response :
+                pass
     # returning a json data which will be stored in the collection as a document        
     return json_data
+
+
+def generate_schema_mongo(db):
+    try:
+        collections = db.list_collection_names()
+        schema_mongo = []
+        for collection_name in collections:
+            try:
+                documents = list(db[collection_name].find())  # Fetching  documents for each collection
+
+                
+                schema_mongo.append(collection_name)
+                schema_mongo.append(documents)
+                
+            except Exception as e:
+                return {"error": f"Error processing collection {collection_name}: {e}"}
+
+    except Exception as e:
+        return {"error": f"Error: {e}"}
+
+    return {"schema": schema_mongo}
