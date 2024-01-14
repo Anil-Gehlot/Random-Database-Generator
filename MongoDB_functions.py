@@ -41,7 +41,7 @@ def int_fake_data(key, json_data):
         return json_data
     
     else:
-        json_data[key]  = random_int()
+        json_data[key]  = fake.random_int()
         return json_data
    
 
