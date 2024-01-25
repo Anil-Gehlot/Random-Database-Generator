@@ -2,6 +2,7 @@ import psycopg2
 from flask import Flask, render_template, request, redirect, url_for, send_file
 from faker import Faker
 import random
+import datetime
 # Initialize the Faker instance
 fake = Faker()
 
@@ -18,6 +19,10 @@ def create_table(column_detail, table_name):
     for column in column_list:
         s = column.split(":")
         column_detail_list.append(s)
+
+    # Adding two additional columns for timestamp and temperature
+    column_detail_list.append(['timestamp', 'timestamp'])
+    column_detail_list.append(['temperature', 'float'])
     
     # PostgreSQL create table query 
     query = f"CREATE TABLE {table_name} ("
@@ -38,6 +43,14 @@ def create_table(column_detail, table_name):
 
 
 # ------------------------fake data generation functions -------------------------------
+
+# function to generate fake data for timestamp
+def timestamp_fake_data(column_name):
+    return datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+
+# function to generate fake data for temperature
+def temperature_fake_data(column_name):
+    return round(random.uniform(5.0, 50.0), 2)
 
 # function to generate fake data for int datatype
 def int_fake_data(column_name):
@@ -196,6 +209,13 @@ def generate_fake_data(column_name, data_type):
         return f"{str(random.randint(1900, 2023)).zfill(4)}-{str(random.randint(1, 12)).zfill(2)}-{str(random.randint(1, 28)).zfill(2)}"  
         # zfill() ensure leading zero for months, year , day
 
+    # Adding conditions for timestamp and temperature
+    if 'timestamp' in data_type:
+        return timestamp_fake_data(column_name)
+    
+    if 'float' in data_type and 'temperature' in column_name:
+        return temperature_fake_data(column_name)
+
 #----------------------------------------------------------------------------------------------------------
 
 # To handle foreign keys.
@@ -346,6 +366,9 @@ def generagte_insert_query(table_name, col_details, db_name, **new_db_config):
             data_type = col_info[1]
             fake_data.append(generate_fake_data(column_name, data_type))
     print(fake_data)
+    # Add fake data for timestamp and temperature
+    fake_data.append(timestamp_fake_data('timestamp'))
+    fake_data.append(temperature_fake_data('temperature'))
 
     if len(fake_data) == 1:
         if type(fake_data[0]) == str:
