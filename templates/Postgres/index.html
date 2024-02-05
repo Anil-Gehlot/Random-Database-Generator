@@ -5,14 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Database Tables</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='index_style.css') }}">
-
+    <script>
+        function confirmTables() {
+            var numTables = document.getElementById("numTables").value;
+            if (numTables > 50) {
+                var confirmMessage = "Are you sure you want to create that many tables?";
+                if (confirm(confirmMessage)) {
+                    return true;  // Continue with form submission
+                } else {
+                    return false; // Prevent form submission
+                }
+            }
+            return true; // Continue with form submission for less than or equal to 50 tables
+        }
+    </script>
 </head>
 <body>
     <div class="container">
-
         <h1>Create Database Tables</h1>
-
-        <form action="{{ url_for('postgres_db.create_tables') }}" method="post">
+        <form action="{{ url_for('postgres_db.create_tables') }}" method="post" onsubmit="return confirmTables()">
             <label for="dbName">Database Name:</label>
             <input type="text" id="dbName" name="dbName" placeholder="Enter Postgres Database Name" required>
 
